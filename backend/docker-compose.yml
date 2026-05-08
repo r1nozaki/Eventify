@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: eventify-postgres
+    environment:
+      POSTGRES_DB: eventify_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eventify-api
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=eventify_db;Username=postgres;Password=postgres
+      Jwt__Issuer: EventifyApi
+      Jwt__Audience: EventifyFrontend
+      Jwt__Key: change_this_super_secret_key_with_at_least_32_chars
+      Jwt__ExpiresMinutes: 120
+      Cors__AllowedOrigins__0: http://localhost:3000
+      Cors__AllowedOrigins__1: https://localhost:3000
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
