@@ -10,5 +10,10 @@ public class Event
     public int Capacity { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+
+    public string Category { get; set; } = "meetup";
+
+    public string Format { get; set; } = "offline";
+
     public ICollection<ParticipantRegistration> Registrations { get; set; } = new List<ParticipantRegistration>();
 }

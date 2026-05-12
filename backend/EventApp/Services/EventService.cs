@@ -12,7 +12,10 @@ public class EventService(IEventRepository eventRepository) : IEventService
     public async Task<PagedResponse<EventResponse>> GetAllAsync(EventQuery query, CancellationToken cancellationToken = default)
     {
         var (items, totalCount) = await eventRepository.GetAllAsync(query, cancellationToken);
-        var mapped = items.Select(Map).ToList();
+        var counts = await eventRepository.GetApprovedRegistrationCountsAsync(
+            items.Select(e => e.Id).ToList(),
+            cancellationToken);
+        var mapped = items.Select(e => Map(e, counts.GetValueOrDefault(e.Id, 0))).ToList();
         var totalPages = (int)Math.Ceiling(totalCount / (double)query.PageSize);
 
         return new PagedResponse<EventResponse>(mapped, query.PageNumber, query.PageSize, totalCount, totalPages);
@@ -23,11 +26,18 @@ public class EventService(IEventRepository eventRepository) : IEventService
         var eventEntity = await eventRepository.GetByIdAsync(id, cancellationToken)
                           ?? throw new AppException("Event not found.", StatusCodes.Status404NotFound);
 
-        return Map(eventEntity);
+        var counts = await eventRepository.GetApprovedRegistrationCountsAsync(
+            new List<Guid> { eventEntity.Id },
+            cancellationToken);
+
+        return Map(eventEntity, counts.GetValueOrDefault(eventEntity.Id, 0));
     }
 
     public async Task<EventResponse> CreateAsync(EventRequest request, CancellationToken cancellationToken = default)
     {
+        var category = NormalizeCategory(request.Category);
+        var format = NormalizeFormat(request.Format);
+
         var eventEntity = new Event
         {
             Id = Guid.NewGuid(),
@@ -36,11 +46,13 @@ public class EventService(IEventRepository eventRepository) : IEventService
             Date = request.Date,
             Location = request.Location,
             Capacity = request.Capacity,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Category = category,
+            Format = format
         };
 
         await eventRepository.AddAsync(eventEntity, cancellationToken);
-        return Map(eventEntity);
+        return Map(eventEntity, 0);
     }
 
     public async Task<EventResponse> UpdateAsync(Guid id, EventRequest request, CancellationToken cancellationToken = default)
@@ -53,9 +65,16 @@ public class EventService(IEventRepository eventRepository) : IEventService
         eventEntity.Date = request.Date;
         eventEntity.Location = request.Location;
         eventEntity.Capacity = request.Capacity;
+        eventEntity.Category = NormalizeCategory(request.Category);
+        eventEntity.Format = NormalizeFormat(request.Format);
 
         await eventRepository.UpdateAsync(eventEntity, cancellationToken);
-        return Map(eventEntity);
+
+        var counts = await eventRepository.GetApprovedRegistrationCountsAsync(
+            new List<Guid> { eventEntity.Id },
+            cancellationToken);
+
+        return Map(eventEntity, counts.GetValueOrDefault(eventEntity.Id, 0));
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -66,6 +85,22 @@ public class EventService(IEventRepository eventRepository) : IEventService
         await eventRepository.DeleteAsync(eventEntity, cancellationToken);
     }
 
-    private static EventResponse Map(Event eventEntity)
-        => new(eventEntity.Id, eventEntity.Title, eventEntity.Description, eventEntity.Date, eventEntity.Location, eventEntity.Capacity, eventEntity.CreatedAt);
+    private static string NormalizeCategory(string? value)
+        => string.IsNullOrWhiteSpace(value) ? "meetup" : value.Trim().ToLowerInvariant();
+
+    private static string NormalizeFormat(string? value)
+        => string.IsNullOrWhiteSpace(value) ? "offline" : value.Trim().ToLowerInvariant();
+
+    private static EventResponse Map(Event eventEntity, int approvedRegistrationCount)
+        => new(
+            eventEntity.Id,
+            eventEntity.Title,
+            eventEntity.Description,
+            eventEntity.Date,
+            eventEntity.Location,
+            eventEntity.Capacity,
+            eventEntity.CreatedAt,
+            eventEntity.Category,
+            eventEntity.Format,
+            approvedRegistrationCount);
 }

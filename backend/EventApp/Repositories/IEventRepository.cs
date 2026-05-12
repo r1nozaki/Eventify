@@ -10,4 +10,8 @@ public interface IEventRepository
     Task AddAsync(Event entity, CancellationToken cancellationToken = default);
     Task UpdateAsync(Event entity, CancellationToken cancellationToken = default);
     Task DeleteAsync(Event entity, CancellationToken cancellationToken = default);
+
+    Task<Dictionary<Guid, int>> GetApprovedRegistrationCountsAsync(
+        IReadOnlyList<Guid> eventIds,
+        CancellationToken cancellationToken = default);
 }

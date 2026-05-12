@@ -15,5 +15,7 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(e => e.Location).IsRequired().HasMaxLength(300);
         builder.Property(e => e.Capacity).IsRequired();
         builder.Property(e => e.CreatedAt).IsRequired();
+        builder.Property(e => e.Category).IsRequired().HasMaxLength(50);
+        builder.Property(e => e.Format).IsRequired().HasMaxLength(32);
     }
 }

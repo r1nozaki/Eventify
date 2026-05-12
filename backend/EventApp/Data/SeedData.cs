@@ -23,7 +23,9 @@ public static class SeedData
                 Date = now.AddDays(10),
                 Location = "Kyiv Tech Hub",
                 Capacity = 120,
-                CreatedAt = now
+                CreatedAt = now,
+                Category = "meetup",
+                Format = "offline"
             },
             new()
             {
@@ -33,7 +35,9 @@ public static class SeedData
                 Date = now.AddDays(20),
                 Location = "Online",
                 Capacity = 250,
-                CreatedAt = now
+                CreatedAt = now,
+                Category = "workshop",
+                Format = "online"
             },
             new()
             {
@@ -41,9 +45,11 @@ public static class SeedData
                 Title = "Startup Pitch Night",
                 Description = "Pitch your product and meet investors.",
                 Date = now.AddDays(35),
-                Location = "Eventify Center",
+                Location = "Eventify Center, Kyiv",
                 Capacity = 80,
-                CreatedAt = now
+                CreatedAt = now,
+                Category = "conference",
+                Format = "hybrid"
             }
         };
 
