@@ -1,12 +1,23 @@
 import Link from 'next/link'
-const NotFound = () => {
-	return (
-		<div className='flex flex-col items-center justify-center min-h-screen text-black'>
-			<h2>Not Found</h2>
-			<p>Could not find requested resource</p>
-			<Link href='/'>Return Home</Link>
-		</div>
-	)
-}
+import { EmptyState } from '@/components/core/EmptyState/EmptyState'
+import { SearchX } from 'lucide-react'
+
+const NotFound = () => (
+	<div className='mx-auto max-w-xl px-4 py-24 sm:px-0'>
+		<EmptyState
+			icon={SearchX}
+			title='Сторінку не знайдено'
+			description='Посилання застаріло або введено неправильний шлях.'
+			action={
+				<Link
+					className='text-sm font-semibold text-purple-600 hover:text-purple-700'
+					href='/'
+				>
+					На головну
+				</Link>
+			}
+		/>
+	</div>
+)
 
 export default NotFound

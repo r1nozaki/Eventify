@@ -9,11 +9,11 @@ const Logo = ({ iconSize = 30 }: Props) => {
 	return (
 		<Link
 			href='/'
-			className='flex items-center gap-2'
+			className='flex items-center gap-2 hover:opacity-80'
 		>
 			<CalendarHeart
 				size={iconSize}
-				color='#7C3AED'
+				className='text-purple-600'
 			/>
 			<span className='text-2xl font-bold text-gray-900'>Eventify</span>
 		</Link>

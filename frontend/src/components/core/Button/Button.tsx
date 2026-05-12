@@ -1,4 +1,4 @@
-import { type ButtonVariant } from '@/const/button'
+import { type ButtonVariant } from '@/types/button'
 import { cn } from '@/lib/utils'
 import { type ButtonHTMLAttributes, ReactNode } from 'react'
 
@@ -23,11 +23,11 @@ export const Button = ({
 		<button
 			disabled={disabled || isLoading}
 			className={cn(
-				'rounded-lg h-10 px-5 hover:cursor-pointer',
+				'inline-flex items-center justify-center gap-2 rounded-lg h-10 px-5 hover:cursor-pointer disabled:opacity-50 disabled:pointer-events-none',
 				variant === 'primary' &&
-					'bg-linear-to-r from-purple-600 to-purple-500 text-white  hover:from-purple-700 hover:to-purple-600 shadow-md transition-colors duration-300',
+					'bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200',
 				variant === 'secondary' &&
-					'border border-gray-200 bg-white text-gray-900 hover:bg-gray-50 transition-colors duration-300',
+					'border border-gray-200 bg-white text-gray-900 hover:bg-gray-50 transition-colors duration-200',
 				className
 			)}
 			{...props}

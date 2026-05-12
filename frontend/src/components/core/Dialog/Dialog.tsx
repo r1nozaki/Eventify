@@ -1,23 +1,90 @@
+'use client'
+
+import { useLenisContext } from '@/contexts/lenisContext'
 import { cn } from '@/lib/utils'
-import { DialogHTMLAttributes, ReactNode } from 'react'
+import { useRef, useEffect, type PropsWithChildren } from 'react'
 
-type Props = {
-	children: ReactNode
+type Props = PropsWithChildren<{
 	isOpen: boolean
+	onClose?: () => void
 	className?: string
-} & DialogHTMLAttributes<HTMLDialogElement>
+	contentClassName?: string
+	ariaLabelledBy?: string
+}>
 
-export const Dialog = ({ children, isOpen, className, ...props }: Props) => {
+export const Dialog = ({
+	isOpen,
+	onClose,
+	children,
+	className,
+	contentClassName,
+	ariaLabelledBy
+}: Props) => {
+	const dialogRef = useRef<HTMLDialogElement>(null)
+	const lenisCtx = useLenisContext()
+
+	useEffect(() => {
+		const dialog = dialogRef.current
+
+		if (!dialog) return
+
+		const handleClose = () => {
+			onClose?.()
+		}
+		dialog.addEventListener('close', handleClose)
+
+		if (isOpen) {
+			if (!dialog.open) {
+				dialog.showModal()
+			}
+		} else if (dialog.open) {
+			dialog.close()
+		}
+
+		return () => {
+			dialog.removeEventListener('close', handleClose)
+		}
+	}, [isOpen, onClose])
+
+	useEffect(() => {
+		if (!isOpen) return undefined
+
+		const lenis = lenisCtx?.getLenis() ?? null
+		lenis?.stop()
+
+		const html = document.documentElement
+		const body = document.body
+		const prevHtmlOverflow = html.style.overflow
+		const prevBodyOverflow = body.style.overflow
+		const prevBodyPaddingRight = body.style.paddingRight
+
+		const scrollbarW = window.innerWidth - html.clientWidth
+		html.style.overflow = 'hidden'
+		body.style.overflow = 'hidden'
+		if (scrollbarW > 0) {
+			body.style.paddingRight = `${scrollbarW}px`
+		}
+
+		return () => {
+			lenis?.start()
+			html.style.overflow = prevHtmlOverflow
+			body.style.overflow = prevBodyOverflow
+			body.style.paddingRight = prevBodyPaddingRight
+		}
+	}, [isOpen, lenisCtx])
+
 	return (
 		<dialog
-			open={isOpen}
-			className={cn(
-				'm-0 z-50 mx-auto my-auto h-fit w-fit max-h-full max-w-full rounded-xl bg-white backdrop:bg-black/70',
-				className
-			)}
-			{...props}
+			ref={dialogRef}
+			aria-labelledby={ariaLabelledBy}
+			className={cn('m-0 h-full max-h-full w-full max-w-full', className)}
 		>
-			{children}
+			<div
+				data-lenis-prevent
+				className={cn('flex max-h-full flex-col overflow-y-auto', contentClassName)}
+			>
+				{children}
+			</div>
 		</dialog>
 	)
 }
