@@ -60,6 +60,17 @@ public class EventService(IEventRepository eventRepository) : IEventService
         var eventEntity = await eventRepository.GetByIdAsync(id, cancellationToken)
                           ?? throw new AppException("Event not found.", StatusCodes.Status404NotFound);
 
+        var approvedCount = await eventRepository.GetApprovedRegistrationCountsAsync(
+            new List<Guid> { eventEntity.Id },
+            cancellationToken);
+        var currentApprovedCount = approvedCount.GetValueOrDefault(eventEntity.Id, 0);
+        if (request.Capacity < currentApprovedCount)
+        {
+            throw new AppException(
+                "Event capacity cannot be lower than approved registrations count.",
+                StatusCodes.Status409Conflict);
+        }
+
         eventEntity.Title = request.Title;
         eventEntity.Description = request.Description;
         eventEntity.Date = request.Date;
@@ -70,11 +81,7 @@ public class EventService(IEventRepository eventRepository) : IEventService
 
         await eventRepository.UpdateAsync(eventEntity, cancellationToken);
 
-        var counts = await eventRepository.GetApprovedRegistrationCountsAsync(
-            new List<Guid> { eventEntity.Id },
-            cancellationToken);
-
-        return Map(eventEntity, counts.GetValueOrDefault(eventEntity.Id, 0));
+        return Map(eventEntity, currentApprovedCount);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

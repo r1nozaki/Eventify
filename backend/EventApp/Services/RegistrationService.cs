@@ -61,6 +61,42 @@ public class RegistrationService(
         await registrationRepository.DeleteAsync(registration, cancellationToken);
     }
 
+    public async Task<RegistrationStreakResponse> GetMyRegistrationStreakAsync(
+        Guid userId,
+        int? timezoneOffsetMinutes,
+        CancellationToken cancellationToken = default)
+    {
+        var createdDates = await registrationRepository.GetCreatedAtByUserIdAsync(userId, cancellationToken);
+        if (createdDates.Count == 0)
+        {
+            return new RegistrationStreakResponse(0, null);
+        }
+
+        var offset = Math.Clamp(timezoneOffsetMinutes ?? 0, -14 * 60, 14 * 60);
+        DateTime ToLocalDay(DateTime date) => date.AddMinutes(-offset).Date;
+
+        var activeDays = createdDates
+            .Select(ToLocalDay)
+            .ToHashSet();
+
+        var today = DateTime.UtcNow.AddMinutes(-offset).Date;
+        var yesterday = today.AddDays(-1);
+        var cursor = activeDays.Contains(today)
+            ? today
+            : activeDays.Contains(yesterday)
+                ? yesterday
+                : DateTime.MinValue;
+
+        var streak = 0;
+        while (cursor != DateTime.MinValue && activeDays.Contains(cursor))
+        {
+            streak++;
+            cursor = cursor.AddDays(-1);
+        }
+
+        return new RegistrationStreakResponse(streak, createdDates.Max());
+    }
+
     public async Task<PagedResponse<RegistrationResponse>> GetMyRegistrationsAsync(Guid userId, PaginationQuery query, CancellationToken cancellationToken = default)
     {
         var (items, totalCount) = await registrationRepository.GetByUserIdAsync(userId, query, cancellationToken);
@@ -89,6 +125,18 @@ public class RegistrationService(
             throw new AppException("Invalid registration status.", StatusCodes.Status400BadRequest);
         }
 
+        if (parsedStatus == RegistrationStatus.Approved && registration.Status != RegistrationStatus.Approved)
+        {
+            var approvedCount = await registrationRepository.CountApprovedByEventIdAsync(
+                registration.EventId,
+                cancellationToken);
+            var capacity = registration.Event?.Capacity ?? 0;
+            if (approvedCount >= capacity)
+            {
+                throw new AppException("Event capacity reached.", StatusCodes.Status409Conflict);
+            }
+        }
+
         registration.Status = parsedStatus;
         await registrationRepository.UpdateAsync(registration, cancellationToken);
 
@@ -102,6 +150,8 @@ public class RegistrationService(
             registration.User?.Username ?? string.Empty,
             registration.EventId,
             registration.Event?.Title ?? string.Empty,
+            registration.Event?.Category ?? string.Empty,
+            registration.Event?.Format ?? string.Empty,
             registration.Status.ToString(),
             registration.CreatedAt);
 }

@@ -3,6 +3,7 @@ import type {
 	AdminRegistrationsQueryParams,
 	PagedResponse,
 	RegistrationDto,
+	RegistrationStreakDto,
 	RegistrationsQueryParams
 } from '@/types/api'
 
@@ -24,6 +25,16 @@ export const createRegistration = async (
 	)
 	return data
 }
+
+export const fetchMyRegistrationStreak =
+	async (): Promise<RegistrationStreakDto> => {
+		const timezoneOffsetMinutes = new Date().getTimezoneOffset()
+		const { data } = await apiClient.get<RegistrationStreakDto>(
+			'/api/registrations/me/streak',
+			{ params: { timezoneOffsetMinutes } }
+		)
+		return data
+	}
 
 export const fetchAllRegistrations = async (
 	params?: AdminRegistrationsQueryParams

@@ -4,6 +4,7 @@ import { Modal } from '@/components/core/Modal/Modal'
 import { useAuthModal } from '@/contexts/authModalContext'
 import { LoginForm } from '@/features/auth/components/LoginForm'
 import { RegisterForm } from '@/features/auth/components/RegisterForm'
+import { sanitizeReturnUrl } from '@/lib/auth/returnUrl'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 
@@ -13,7 +14,7 @@ export const AuthModal = () => {
 		useAuthModal()
 
 	const afterAuth = () => {
-		const target = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/'
+		const target = sanitizeReturnUrl(returnUrl, '/') ?? '/'
 		close()
 		router.push(target)
 	}

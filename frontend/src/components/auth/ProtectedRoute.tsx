@@ -2,6 +2,7 @@
 
 import { Loader } from '@/components/core/Loader/Loader'
 import { useAuth } from '@/contexts/authContext'
+import { sanitizeReturnUrl } from '@/lib/auth/returnUrl'
 import { usePathname, useRouter } from 'next/navigation'
 import { type ReactNode, useEffect } from 'react'
 
@@ -14,7 +15,7 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 		if (!isHydrated) return
 		if (!isAuthenticated) {
 			const redirect =
-				pathname && pathname.startsWith('/') ? pathname : '/registrations'
+				sanitizeReturnUrl(pathname, '/registrations') ?? '/registrations'
 			const qs = new URLSearchParams()
 			qs.set('auth', 'login')
 			qs.set('returnUrl', redirect)

@@ -18,6 +18,7 @@ import {
 	formatLabel
 } from '@/features/events/labels/eventDisplay'
 import { formatDateTimeUtc } from '@/lib/datetime'
+import { downloadEventIcs, getGoogleCalendarUrl } from '@/lib/calendarExport'
 import { extractApiMessage } from '@/lib/apiError'
 import { isAdminUser } from '@/lib/auth/isAdmin'
 import { cn } from '@/lib/utils'
@@ -31,6 +32,7 @@ import {
 	ArrowLeft,
 	CalendarClock,
 	CalendarDays,
+	CalendarPlus,
 	MapPin,
 	Pencil,
 	ShieldUser,
@@ -90,6 +92,7 @@ export const EventDetailPageView = ({ eventId }: Props) => {
 	const isPast = Boolean(data && eventTime < Date.now())
 
 	const isAdmin = isAdminUser(auth.user?.role)
+	const googleCalendarUrl = data ? getGoogleCalendarUrl(data) : '#'
 
 	const handleDeleteEvent = async () => {
 		if (!data) return
@@ -319,6 +322,46 @@ export const EventDetailPageView = ({ eventId }: Props) => {
 											Платформа: Eventify · створено{' '}
 											{formatDateTimeUtc(data.createdAt)}
 										</p>
+									</CardContent>
+								</Card>
+
+								<Card className='rounded-2xl border-gray-200/80 p-6 shadow-sm'>
+									<CardHeader className='mb-3 p-0'>
+										<CardTitle className='flex items-center gap-2 text-lg'>
+											<CalendarPlus
+												className='h-5 w-5 text-violet-600'
+												aria-hidden
+											/>
+											Календар
+										</CardTitle>
+										<CardDescription>
+											Збережіть подію, щоб не пропустити дату й час.
+										</CardDescription>
+									</CardHeader>
+									<CardContent className='space-y-3 p-0'>
+										<Button
+											type='button'
+											variant='secondary'
+											className='w-full justify-center'
+											onClick={() => downloadEventIcs(data)}
+										>
+											<CalendarPlus
+												className='h-4 w-4'
+												aria-hidden
+											/>
+											Завантажити .ics
+										</Button>
+										<Link
+											href={googleCalendarUrl}
+											target='_blank'
+											rel='noreferrer'
+											className={cn(
+												linkButtonSecondary,
+												'w-full border-violet-100 text-violet-700 hover:bg-violet-50'
+											)}
+										>
+											Додати в Google Calendar
+										</Link>
 									</CardContent>
 								</Card>
 							</div>

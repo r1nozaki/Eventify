@@ -1,6 +1,5 @@
 'use client'
 
-import { useLenisContext } from '@/contexts/lenisContext'
 import { cn } from '@/lib/utils'
 import { useRef, useEffect, type PropsWithChildren } from 'react'
 
@@ -21,7 +20,6 @@ export const Dialog = ({
 	ariaLabelledBy
 }: Props) => {
 	const dialogRef = useRef<HTMLDialogElement>(null)
-	const lenisCtx = useLenisContext()
 
 	useEffect(() => {
 		const dialog = dialogRef.current
@@ -49,9 +47,6 @@ export const Dialog = ({
 	useEffect(() => {
 		if (!isOpen) return undefined
 
-		const lenis = lenisCtx?.getLenis() ?? null
-		lenis?.stop()
-
 		const html = document.documentElement
 		const body = document.body
 		const prevHtmlOverflow = html.style.overflow
@@ -66,12 +61,11 @@ export const Dialog = ({
 		}
 
 		return () => {
-			lenis?.start()
 			html.style.overflow = prevHtmlOverflow
 			body.style.overflow = prevBodyOverflow
 			body.style.paddingRight = prevBodyPaddingRight
 		}
-	}, [isOpen, lenisCtx])
+	}, [isOpen])
 
 	return (
 		<dialog

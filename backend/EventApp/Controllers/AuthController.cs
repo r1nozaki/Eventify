@@ -17,7 +17,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
         var response = await authService.RegisterAsync(request, cancellationToken);
-        SetRefreshTokenCookie(response.RefreshToken, response.ExpiresAt);
+        SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiresAt);
         return StatusCode(StatusCodes.Status201Created, response);
     }
 
@@ -26,7 +26,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         var response = await authService.LoginAsync(request, cancellationToken);
-        SetRefreshTokenCookie(response.RefreshToken, response.ExpiresAt);
+        SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiresAt);
         return Ok(response);
     }
 
@@ -42,7 +42,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
 
         var response = await authService.RefreshTokenAsync(refreshToken ?? string.Empty, cancellationToken);
-        SetRefreshTokenCookie(response.RefreshToken, response.ExpiresAt);
+        SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiresAt);
         return Ok(response);
     }
 

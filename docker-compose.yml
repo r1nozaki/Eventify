@@ -1,29 +1,54 @@
-version: '3.9'
-
 services:
   db:
-    image: postgres:15
-    container_name: event-db
-    restart: always
+    image: postgres:16-alpine
+    container_name: eventify-db
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: eventdb
+      POSTGRES_DB: eventify_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - eventify-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d eventify_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  api:
-    build: .
-    container_name: event-api
-    depends_on:
-      - db
-    ports:
-      - '5000:8080'
+  backend:
+    container_name: eventify-backend
+    restart: unless-stopped
+    build:
+      context: ./backend
+      dockerfile: DockerFile
     environment:
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Default: Host=db;Port=5432;Database=eventdb;Username=postgres;Password=postgres
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=eventify_db;Username=postgres;Password=postgres
+      Cors__AllowedOrigins__0: http://localhost:3000
+      Cors__AllowedOrigins__1: https://localhost:3000
+    ports:
+      - '8080:8080'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    container_name: eventify-frontend
+    restart: unless-stopped
+    build:
+      context: ./frontend
+      dockerfile: DockerFile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8080
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXT_TELEMETRY_DISABLED: '1'
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
 
 volumes:
-  postgres_data:
+  eventify-postgres-data:

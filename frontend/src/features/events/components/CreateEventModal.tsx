@@ -7,6 +7,7 @@ import { Select } from '@/components/core/Select/Select'
 import { PrimaryButton } from '@/components/core/Button/PrimaryButton'
 import { SecondaryButton } from '@/components/core/Button/SecondaryButton'
 import { isAdminUser } from '@/lib/auth/isAdmin'
+import { extractApiMessage } from '@/lib/apiError'
 import { useAuth } from '@/contexts/authContext'
 import {
 	createEventFormSchema,
@@ -71,8 +72,8 @@ export const CreateEventModal = ({ isOpen, onClose }: Props) => {
 				format: values.format
 			})
 			onClose()
-		} catch (error) {
-			console.error(error)
+		} catch {
+			// Error state is rendered from the mutation below.
 		}
 	})
 
@@ -227,6 +228,15 @@ export const CreateEventModal = ({ isOpen, onClose }: Props) => {
 						{form.formState.errors.dateLocal.message}
 					</p>
 				)}
+
+				{mutation.isError ? (
+					<p className='rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600'>
+						{extractApiMessage(
+							mutation.error,
+							'Не вдалося створити подію. Перевірте дані або права доступу.'
+						)}
+					</p>
+				) : null}
 			</form>
 		</Modal>
 	)

@@ -22,9 +22,12 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
     {
         context.Response.ContentType = "application/json";
 
-        var statusCode = ex is AppException appException
-            ? appException.StatusCode
-            : StatusCodes.Status500InternalServerError;
+        var statusCode = ex switch
+        {
+            AppException appException => appException.StatusCode,
+            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            _ => StatusCodes.Status500InternalServerError
+        };
 
         context.Response.StatusCode = statusCode;
 

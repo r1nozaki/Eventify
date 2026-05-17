@@ -19,8 +19,15 @@ export type RegistrationDto = {
 	username: string
 	eventId: string
 	eventTitle: string
+	eventCategory?: string
+	eventFormat?: string
 	status: RegistrationStatusDto
 	createdAt: string
+}
+
+export type RegistrationStreakDto = {
+	days: number
+	lastRegistrationAt: string | null
 }
 
 export type AuthUserDto = {
@@ -33,6 +40,7 @@ export type AuthResponseDto = AuthUserDto & {
 	token: string
 	refreshToken: string
 	expiresAt: string
+	refreshTokenExpiresAt: string
 }
 
 export type PagedResponse<T> = {

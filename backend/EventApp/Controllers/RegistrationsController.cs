@@ -41,6 +41,15 @@ public class RegistrationsController(IRegistrationService registrationService) :
         return Ok(result);
     }
 
+    [HttpGet("me/streak")]
+    [ProducesResponseType(typeof(RegistrationStreakResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyRegistrationStreak([FromQuery] int? timezoneOffsetMinutes, CancellationToken cancellationToken)
+    {
+        var userId = GetCurrentUserId();
+        var result = await registrationService.GetMyRegistrationStreakAsync(userId, timezoneOffsetMinutes, cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(PagedResponse<RegistrationResponse>), StatusCodes.Status200OK)]

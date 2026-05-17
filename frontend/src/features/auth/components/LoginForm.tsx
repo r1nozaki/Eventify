@@ -24,8 +24,12 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }: LoginFormProps) => 
 	})
 
 	const onSubmit = form.handleSubmit(async (values) => {
-		await mutation.mutateAsync(values)
-		onSuccess?.()
+		try {
+			await mutation.mutateAsync(values)
+			onSuccess?.()
+		} catch {
+			// Error state is rendered from the mutation below.
+		}
 	})
 
 	return (

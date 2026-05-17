@@ -1,6 +1,7 @@
 'use client'
 
 import { Loader } from '@/components/core/Loader/Loader'
+import { sanitizeReturnUrl } from '@/lib/auth/returnUrl'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect } from 'react'
 
@@ -9,10 +10,10 @@ const RegisterRedirectInner = () => {
 	const searchParams = useSearchParams()
 
 	useEffect(() => {
-		const returnUrl = searchParams.get('returnUrl')
+		const returnUrl = sanitizeReturnUrl(searchParams.get('returnUrl'))
 		const qs = new URLSearchParams()
 		qs.set('auth', 'register')
-		if (returnUrl && returnUrl.startsWith('/')) {
+		if (returnUrl) {
 			qs.set('returnUrl', returnUrl)
 		}
 		router.replace(`/?${qs.toString()}`)

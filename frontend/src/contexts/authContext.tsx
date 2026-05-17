@@ -56,8 +56,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		if (token) {
 			try {
 				await revokeRefreshRequest()
-			} catch (error) {
-				console.log(error)
+			} catch {
+				// Local logout should still complete if token revocation fails.
 			}
 		}
 		clearAuthStorage()

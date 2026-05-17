@@ -11,6 +11,7 @@ export const useCreateRegistration = () => {
 		mutationFn: async (eventId: string) => await createRegistration(eventId),
 		onSuccess: (created: RegistrationDto) => {
 			qc.invalidateQueries({ queryKey: ['registrations', 'me'] })
+			qc.invalidateQueries({ queryKey: queryKeys.registrationStreak() })
 			qc.invalidateQueries({
 				queryKey: queryKeys.event(created.eventId)
 			})

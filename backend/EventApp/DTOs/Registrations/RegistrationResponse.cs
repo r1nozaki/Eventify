@@ -6,5 +6,7 @@ public record RegistrationResponse(
     string Username,
     Guid EventId,
     string EventTitle,
+    string EventCategory,
+    string EventFormat,
     string Status,
     DateTime CreatedAt);

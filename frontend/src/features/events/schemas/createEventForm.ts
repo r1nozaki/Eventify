@@ -31,7 +31,7 @@ export const createEventFormSchema = z.object({
 		.number({ error: () => ({ message: 'Вкажіть місткість' }) })
 		.int('Лише цілі числа')
 		.min(1, 'Мінімум 1 місце')
-		.max(500_000, 'Занадто велике значення'),
+		.max(100_000, 'Максимум 100 000 місць'),
 	category: eventCategorySchema,
 	format: eventFormatSchema
 })

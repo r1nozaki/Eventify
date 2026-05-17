@@ -116,10 +116,6 @@ export const CalendarPageView = () => {
 					<h1 className='text-3xl font-bold text-gray-900'>
 						Календар подій (UTC)
 					</h1>
-					<p className='mt-2 text-gray-500'>
-						Події синхронізовані із API й згруповані за календарними днями
-						сервера.
-					</p>
 				</div>
 				<EmptyState
 					icon={CalendarDays}

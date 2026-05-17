@@ -31,25 +31,25 @@ export const RegisterForm = ({
 		mode: 'onBlur'
 	})
 
-	const onSubmit = form.handleSubmit(async (values) => {
-		await mutation.mutateAsync({
-			username: values.username,
-			email: values.email,
-			password: values.password
-		})
-		onSuccess?.()
+	const onSubmit = form.handleSubmit(async values => {
+		try {
+			await mutation.mutateAsync({
+				username: values.username,
+				email: values.email,
+				password: values.password
+			})
+			onSuccess?.()
+		} catch {
+			// Error state is rendered from the mutation below.
+		}
 	})
 
 	return (
-		<form className='space-y-5' noValidate onSubmit={onSubmit}>
-			<p className='rounded-xl border border-violet-100 bg-violet-50/80 px-4 py-3 text-xs leading-relaxed text-violet-900'>
-				<strong className='font-semibold'>Демо для захисту:</strong> обліковий запис з
-				правами адміністратора створюється автоматично, якщо email закінчується на{' '}
-				<code className='rounded bg-white px-1.5 py-0.5 font-mono text-[11px] text-purple-800'>
-					@admin.eventify
-				</code>{' '}
-				(наприклад, <span className='font-mono'>demo@admin.eventify</span>).
-			</p>
+		<form
+			className='space-y-5'
+			noValidate
+			onSubmit={onSubmit}
+		>
 			<div>
 				<label
 					htmlFor='auth-username'

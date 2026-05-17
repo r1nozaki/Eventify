@@ -20,6 +20,13 @@ public class RegistrationRepository(AppDbContext dbContext) : IRegistrationRepos
             .Include(r => r.Event)
             .FirstOrDefaultAsync(r => r.UserId == userId && r.EventId == eventId, cancellationToken);
 
+    public Task<List<DateTime>> GetCreatedAtByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        => dbContext.ParticipantRegistrations
+            .AsNoTracking()
+            .Where(r => r.UserId == userId)
+            .Select(r => r.CreatedAt)
+            .ToListAsync(cancellationToken);
+
     public async Task<(List<ParticipantRegistration> Items, int TotalCount)> GetByUserIdAsync(Guid userId, PaginationQuery query, CancellationToken cancellationToken = default)
     {
         var registrations = dbContext.ParticipantRegistrations

@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 
+html,
+body {
+	min-height: 100%;
+	overflow-y: auto;
+}
+
 dialog.eventify-dialog {
 	opacity: 0;
 	transform: translateY(10px) scale(0.98);
@@ -43,6 +49,25 @@ dialog.eventify-dialog[open]::backdrop {
 		opacity: 1;
 		transform: translateX(0);
 	}
+}
+
+@keyframes streak-pop {
+	0% {
+		opacity: 0;
+		transform: translateY(-6px) scale(0.8);
+	}
+	70% {
+		opacity: 1;
+		transform: translateY(1px) scale(1.08);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.streak-pop {
+	animation: streak-pop 0.38s cubic-bezier(0.2, 0.85, 0.2, 1.2) both;
 }
 
 main {

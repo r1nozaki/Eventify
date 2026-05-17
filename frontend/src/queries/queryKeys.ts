@@ -9,6 +9,7 @@ export const queryKeys = {
 	event: (id: string) => ['events', id] as const,
 	registrations: (params?: RegistrationsQueryParams) =>
 		['registrations', 'me', params] as const,
+	registrationStreak: () => ['registrations', 'me', 'streak'] as const,
 	adminRegistrations: (params?: AdminRegistrationsQueryParams) =>
 		['registrations', 'admin', params] as const
 }

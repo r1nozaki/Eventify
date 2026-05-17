@@ -1,6 +1,7 @@
 'use client'
 
 import { AuthModal } from '@/features/auth/components/AuthModal'
+import { sanitizeReturnUrl } from '@/lib/auth/returnUrl'
 import {
 	createContext,
 	useCallback,
@@ -31,13 +32,13 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
 	const [returnUrl, setReturnUrl] = useState<string | null>(null)
 
 	const openLogin = useCallback((url?: string | null) => {
-		setReturnUrl(url && url.startsWith('/') ? url : null)
+		setReturnUrl(sanitizeReturnUrl(url))
 		setView('login')
 		setIsOpen(true)
 	}, [])
 
 	const openRegister = useCallback((url?: string | null) => {
-		setReturnUrl(url && url.startsWith('/') ? url : null)
+		setReturnUrl(sanitizeReturnUrl(url))
 		setView('register')
 		setIsOpen(true)
 	}, [])

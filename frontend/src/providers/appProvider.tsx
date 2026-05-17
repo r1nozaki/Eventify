@@ -2,16 +2,22 @@
 
 import { AuthProvider } from '@/contexts/authContext'
 import { AuthModalProvider } from '@/contexts/authModalContext'
-import { LenisProvider } from '@/contexts/lenisContext'
 import { QueryProvider } from '@/providers/queryProvider'
-import { type ReactNode } from 'react'
+import { type ReactNode, useEffect } from 'react'
 
-export const AppProvider = ({ children }: { children: ReactNode }) => (
-	<QueryProvider>
-		<AuthProvider>
-			<LenisProvider>
+export const AppProvider = ({ children }: { children: ReactNode }) => {
+	useEffect(() => {
+		if (document.querySelector('dialog[open]')) return
+		document.documentElement.style.overflow = ''
+		document.body.style.overflow = ''
+		document.body.style.paddingRight = ''
+	}, [])
+
+	return (
+		<QueryProvider>
+			<AuthProvider>
 				<AuthModalProvider>{children}</AuthModalProvider>
-			</LenisProvider>
-		</AuthProvider>
-	</QueryProvider>
-)
+			</AuthProvider>
+		</QueryProvider>
+	)
+}

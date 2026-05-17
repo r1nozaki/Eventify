@@ -91,6 +91,7 @@ public class AuthService(
 
         var refreshTokenRaw = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         var refreshTokenExpiresDays = int.TryParse(configuration["Jwt:RefreshTokenExpiresDays"], out var days) ? days : 14;
+        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpiresDays);
 
         await refreshTokenRepository.AddAsync(new RefreshToken
         {
@@ -98,10 +99,17 @@ public class AuthService(
             UserId = user.Id,
             TokenHash = HashRefreshToken(refreshTokenRaw),
             CreatedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpiresDays)
+            ExpiresAt = refreshTokenExpiresAt
         }, cancellationToken);
 
-        return new AuthResponse(token, refreshTokenRaw, expiresAt, user.Username, user.Email, user.Role.ToString());
+        return new AuthResponse(
+            token,
+            refreshTokenRaw,
+            expiresAt,
+            refreshTokenExpiresAt,
+            user.Username,
+            user.Email,
+            user.Role.ToString());
     }
 
     private static string HashRefreshToken(string refreshToken)
